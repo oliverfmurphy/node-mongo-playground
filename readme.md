@@ -23,3 +23,12 @@ http://mongodb.github.io/node-mongodb-native/2.2/api/Collection.html
 
 mongodDB update operators
 https://docs.mongodb.com/manual/reference/operator/update/
+
+mongoose
+mongoosejs.com
+
+npm install mongoose -- save
+
+
+postman
+https://www.getpostman.com/download?platform=win64

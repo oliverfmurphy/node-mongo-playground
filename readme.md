@@ -17,3 +17,9 @@ http://mongodb.github.io/node-mongodb-native/2.2/api/index.html
 
 cursor
 http://mongodb.github.io/node-mongodb-native/2.2/api/Cursor.html
+
+collection
+http://mongodb.github.io/node-mongodb-native/2.2/api/Collection.html
+
+mongodDB update operators
+https://docs.mongodb.com/manual/reference/operator/update/

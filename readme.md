@@ -32,3 +32,9 @@ npm install mongoose -- save
 
 postman
 https://www.getpostman.com/download?platform=win64
+
+
+npm install express
+
+// take a string and transforms it into JSON
+npm install body-parse

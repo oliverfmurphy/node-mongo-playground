@@ -105,3 +105,6 @@ app.post('/todos', (req, res) => {
 app.listen(3000, () => {
   console.log('Started on port 3000');
 });
+
+// set the app object equal to the app variable using the ES6 syntax
+module.exports = {app};

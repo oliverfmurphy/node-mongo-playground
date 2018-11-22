@@ -28,7 +28,9 @@ mongoose
 mongoosejs.com
 
 npm install mongoose -- save
-
+npm install body-parser --save
+npm install express --save
+npm install mongodb --save
 
 postman
 https://www.getpostman.com/download?platform=win64
@@ -38,3 +40,5 @@ npm install express
 
 // take a string and transforms it into JSON
 npm install body-parse
+
+npm install expect mocha nodemon supertest --save-dev

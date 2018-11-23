@@ -102,6 +102,16 @@ app.post('/todos', (req, res) => {
   });
 });
 
+// get all todos
+app.get('/todos', (req, res) => {
+  Todo.find().then((todos) => {
+    // {todos} is the todos array
+    res.send({todos});
+  }, (e) => {
+    res.status(400).send(e);
+  })
+});
+
 app.listen(3000, () => {
   console.log('Started on port 3000');
 });

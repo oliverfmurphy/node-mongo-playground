@@ -4,11 +4,25 @@ const request = require('supertest');
 const{app} = require('./../server');
 const{Todo} = require('./../models/todo');
 
+// make up an array of dummy todos
+const todos = [{
+    text: 'First test todo'
+  }, {
+    text: 'Second test todo'
+}];
+
 // add a testing lifecycle method
-// make sure the db is empty
 beforeEach((done) => {
+  // make sure the db is empty by removing all the records
   // pass in an empty object to Todo.remove which will wipe all of our todos
+  /*
   Todo.remove({}).then(() => done());
+  */
+
+  // empty the array then insert todos from the array above
+  Todo.remove({}).then(() => {
+    return Todo.insertMany(todos)
+  }).then(() => done());
 });
 
 // create describe block and add test cases
@@ -40,7 +54,9 @@ describe('POST /todos', () => {
         }
 
         // fetch all the todos and then execute a then callback and make some assertions about that
-        Todo.find().then((todos) => {
+        // Todo.find().then((todos) => {
+        //Find the todos that match the text
+        Todo.find({text}).then((todos) => {
           expect(todos.length).toBe(1); // assume to be a length of 1
           expect(todos[0].text).toBe(text); // assume the first and only record to be equal to text
           done();
@@ -67,9 +83,23 @@ describe('POST /todos', () => {
 
         // fetch all the todos and then execute a then callback and make some assertions about that
         Todo.find().then((todos) => {
-          expect(todos.length).toBe(0); // assume to be a length of 0 as we are sending in bad data
+          expect(todos.length).toBe(2); // assume to be a length of 2
           done();
         }).catch((e) => done(e)); // catch any errors that may occur inside of our callback
       });
   });
+
+  describe('GET /todos', () => {
+    it('should get all todos', (done) => {
+      request(app)
+        .get('/todos')
+        // make assertions about what comes back
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.todos.length).toBe(2);
+        })
+        .end(done);
+    });
+  });
+
 });

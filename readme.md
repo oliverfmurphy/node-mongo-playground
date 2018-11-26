@@ -42,3 +42,6 @@ npm install express
 npm install body-parse
 
 npm install expect mocha nodemon supertest --save-dev
+
+// kicks off our test suite
+npm run test-watch

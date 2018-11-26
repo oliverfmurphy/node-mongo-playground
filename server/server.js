@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 
+const {ObjectID} = require('mongodb');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
@@ -110,6 +111,43 @@ app.get('/todos', (req, res) => {
   }, (e) => {
     res.status(400).send(e);
   });
+});
+
+// GET /todos/12345 etc.
+// we need to get a URL parameter, :id creates an id variable on the request object so we can access the variable
+app.get('/todos/:id', (req, res) => {
+  // send back the request params object
+  // res.send(req.params)
+
+  var id = req.params.id
+  // validate the Id using isValid
+  if (!ObjectID.isValid(id)) {
+    console.log('Todo ID not valid');
+    // 404 if Id not found - send back an empty body
+    return res.status(404).send();
+  };
+
+  // findById
+  // gets a single document by Id, returns null if not found
+  Todo.findById(id).then((todo) => {
+    if (!todo) {
+     // if no todo - the call did succeed but there was no related call in the collection - send back an empty body
+      return res.status(404).send();
+    }
+    console.log('Todo By Id', todo);
+    // success
+    // if todo - send it back
+    // res.status(200).send(JSON.stringify(todo, undefined, 2));
+    // respond with an object that has a todos property and that is the array
+    res.send({todo});
+
+  }).catch((e) => {
+    // exception if the object Id is invalid
+    // 400 - request not valid & send empty body back
+    console.log(e);
+    return res.status(400).send(e);
+  });
+
 });
 
 app.listen(3000, () => {

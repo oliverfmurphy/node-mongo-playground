@@ -84,6 +84,8 @@ user.save().then((doc) => {
 
 
 var app = express();
+// a variable that may or not be set, will be set if the app is running on heroku and wont be set if it is running locally
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
@@ -151,7 +153,7 @@ app.get('/todos/:id', (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log('Started on port 3000');
+  console.log(`Started on port ${port}`);
 });
 
 // set the app object equal to the app variable using the ES6 syntax

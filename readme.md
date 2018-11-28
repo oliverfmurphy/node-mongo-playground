@@ -45,3 +45,24 @@ npm install expect mocha nodemon supertest --save-dev
 
 // kicks off our test suite
 npm run test-watch
+
+
+Heroku
+start script in package.json tells heroku how to start the application
+set up an engines property to tell Heroku what version of node to use
+set up a database with a heroku add on
+
+commands
+heroku create
+// we want the mlab add-on
+// https://elements.heroku.com/addons/mongolab
+
+// get a  list of all the configuration variables for your application
+heroku config
+output:
+$ heroku config
+ »   Warning: heroku update available from 7.15.1 to 7.18.9
+=== fierce-mesa-74593 Config Vars
+MONGODB_URI: mongodb://heroku_w9jqdnrm:teuoi8ino0ombnebo4hjb40ol6@ds119304.mlab.com:19304/heroku_w9jqdnrm
+
+MONGODB_URI is the process.env that the app uses on Heroku

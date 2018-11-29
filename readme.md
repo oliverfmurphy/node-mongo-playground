@@ -66,3 +66,10 @@ $ heroku config
 MONGODB_URI: mongodb://heroku_w9jqdnrm:teuoi8ino0ombnebo4hjb40ol6@ds119304.mlab.com:19304/heroku_w9jqdnrm
 
 MONGODB_URI is the process.env that the app uses on Heroku
+
+// when you create a heroku application it automatically adds a heroku remote
+git push heroku master
+
+
+// shows you the server logs for your application
+heroku logs

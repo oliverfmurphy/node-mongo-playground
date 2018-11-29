@@ -152,6 +152,37 @@ app.get('/todos/:id', (req, res) => {
 
 });
 
+// create a delete route
+app.delete('/todos/:id', (req, res) => {
+  var id = req.params.id
+
+  // validate the Id using isValid
+  if (!ObjectID.isValid(id)) {
+    console.log('Todo ID not valid');
+    // 404 if Id not found - send back an empty body
+    return res.status(404).send();
+  };
+
+  // remove document by Id
+  // the callback gets the document back
+  Todo.findByIdAndRemove(id).then((todo) => {
+    if (!todo) {
+     // if no todo - the call did succeed but there was no related call in the collection - send back an empty body
+      return res.status(404).send();
+    };
+    // print the todo to the console
+    console.log('todo');
+    // respond with an object that has a todos property and that is the array
+    res.send({todo});
+  }).catch((e) => {
+    // exception if the object Id is invalid
+    // 400 - request not valid & send empty body back
+    console.log(e);
+    return res.status(400).send(e);
+  });
+
+});
+
 app.listen(port, () => {
   console.log(`Started on port ${port}`);
 });

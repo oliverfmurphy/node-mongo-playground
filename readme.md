@@ -73,3 +73,5 @@ git push heroku master
 
 // shows you the server logs for your application
 heroku logs
+
+https://fierce-mesa-74593.herokuapp.com

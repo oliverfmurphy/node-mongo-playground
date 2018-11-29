@@ -173,7 +173,7 @@ app.delete('/todos/:id', (req, res) => {
     // print the todo to the console
     console.log('todo');
     // respond with an object that has a todos property and that is the array
-    res.send({todo});
+    res.send({todo}); // equivalent to res.send({todo: todo});
   }).catch((e) => {
     // exception if the object Id is invalid
     // 400 - request not valid & send empty body back

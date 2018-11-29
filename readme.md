@@ -31,8 +31,9 @@ npm install mongoose -- save
 npm install body-parser --save
 npm install express --save
 npm install mongodb --save
+npm install lodash --save
 
-postman
+install postman
 https://www.getpostman.com/download?platform=win64
 
 

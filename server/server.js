@@ -1,5 +1,6 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 
 var {mongoose} = require('./db/mongoose');
@@ -180,6 +181,40 @@ app.delete('/todos/:id', (req, res) => {
     console.log(e);
     return res.status(400).send(e);
   });
+});
+
+// PATCH method for updates
+app.patch('/todos/:id', (req, res) => {
+  var id = req.params.id;
+  // pick takes an array of properties that you want to pull off if they exist
+  // if the text property exists then pull that off of request body adding it to body
+  var body = _.pick(req.body, ['text', 'completed']);
+
+  // validate the Id using isValid
+  if (!ObjectID.isValid(id)) {
+    console.log('Todo ID not valid');
+    // 404 if Id not found - send back an empty body
+    return res.status(404).send();
+  };
+
+  // if body.completed is a Boolean and that boolean is true then..
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if (!todo) {
+      return res.status(404).send();
+    };
+
+    res.send({todo});
+
+  }).catch((e) => {
+    res.status(400).send();
+  })
 
 });
 

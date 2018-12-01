@@ -11,7 +11,9 @@ const todos = [{
     text: 'First test todo'
   }, {
     _id: new ObjectID(),
-    text: 'Second test todo'
+    text: 'Second test todo',
+    completed: true,
+    completedAt: 333
 }];
 
 // add a testing lifecycle method
@@ -177,4 +179,56 @@ describe('POST /todos', () => {
     });
 
   });
+
+  describe('PATCH /todos/:id', () => {
+    it ('should update the todo', (done) => {
+      // grab id of first item
+      var hexId = todos[0]._id.toHexString();
+      var text = 'Test PATCH #1';
+
+
+      // make GET request through supertest
+      request(app)
+        // convert the object ID to a string using toHexString()
+        .patch(`/todos/${hexId}`)
+        .expect(200)
+        .send({text,
+              completed: true}) // send data with the request, object gets converted to JSON by supertest
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.todo.text).toBe(text);
+          expect(res.body.todo.completed).toBe(true);
+          expect(typeof res.body.todo.completedAt).toBe('number');
+        })
+        .end(done)
+    });
+
+    it ('should clear completedAt when todo is not completed', (done) => {
+      // grab id of second item
+      // update the text, set completed to false
+      // 200
+      // text is changed, completed is false, completedAt is null (toNotExist)
+
+      // grab id of second item
+      var hexId = todos[1]._id.toHexString();
+      var text = 'Test PATCH #2';
+
+      // make GET request through supertest
+      request(app)
+        // convert the object ID to a string using toHexString()
+        .patch(`/todos/${hexId}`)
+        .expect(200)
+        .send({text,
+              completed: false}) // send data with the request, object gets converted to JSON by supertest
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.todo.text).toBe(text);
+          expect(res.body.todo.completed).toBe(false);
+          expect(res.body.todo.completedAt).toBeFalsy();
+        })
+        .end(done)
+    });
+
+  });
+
 });

@@ -1,3 +1,5 @@
+require('./config/config');
+
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -6,6 +8,8 @@ const {ObjectID} = require('mongodb');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+
+console.log('env [', process.env.NODE_ENV, '], PORT [', process.env.PORT, '], MONGODB_URI [', process.env.MONGODB_URI, '].');
 
 // create a new Todo model
 /*
@@ -85,8 +89,8 @@ user.save().then((doc) => {
 
 
 var app = express();
-// a variable that may or not be set, will be set if the app is running on heroku and wont be set if it is running locally
-const port = process.env.PORT || 3000;
+// a variable that may or not be set, will be set if the app is running on heroku and we are setting it up above when running locally
+const port = process.env.PORT; // set above
 
 app.use(bodyParser.json());
 

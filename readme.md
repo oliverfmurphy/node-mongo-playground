@@ -76,3 +76,15 @@ git push heroku master
 heroku logs
 
 https://fierce-mesa-74593.herokuapp.com
+
+
+NODE_ENV
+process.env.NODE_ENV
+heroku sets process.env.NODE_ENV === 'production' by default
+// production when we run our on heroku
+// test when we run our app through mocha
+// development environment when we run our app locally
+
+in package.json
+"test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js",
+export is for linux/osx/unix, SET is for Windows

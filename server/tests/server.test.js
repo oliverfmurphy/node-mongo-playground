@@ -5,6 +5,8 @@ const{ObjectID} = require('mongodb');
 const{app} = require('./../server');
 const{Todo} = require('./../models/todo');
 
+console.log('server.test.js env [', process.env.NODE_ENV, '], PORT [', process.env.PORT, '], MONGODB_URI [', process.env.MONGODB_URI || '].');
+
 // make up an array of dummy todos
 const todos = [{
     _id: new ObjectID(),

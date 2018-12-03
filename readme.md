@@ -88,3 +88,17 @@ heroku sets process.env.NODE_ENV === 'production' by default
 in package.json
 "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js",
 export is for linux/osx/unix, SET is for Windows
+
+// validator
+// https://www.npmjs.com/package/validator
+npm install validator --save
+
+
+// hashing
+npm install crypto-js --save
+// not used in the application, used in the scratch examples
+
+
+JWT JSON Web Token
+npm install jsonwebtoken --save
+www.jwt.io

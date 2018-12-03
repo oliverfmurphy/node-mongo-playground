@@ -1,12 +1,12 @@
 const {SHA256} = require('crypto-js');
 const jwt = require('jsonwebtoken');
-
+const bcrypt = require('bcryptjs');
 var data = {
   id: 10
 };
 
 var token = jwt.sign(data, '123abc'); // 2nd parameter is the salt
-console.log(token); // jwt.io
+// console.log(token); // jwt.io
 /*
 example
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsImlhdCI6MTU0Mzc4NzUzOX0.HZNEdG
@@ -52,3 +52,23 @@ if (resultHash === token.hash) {
   console.log('Data was changed, Do not trust!!');
 }
 */
+
+// brcypt
+// https://www.npmjs.com/package/bcryptjs
+
+var password = '123abc!';
+
+// hash the password
+// first salt it, 2 parameters, the first is the number of rounds you want to generate the salt, the second is a callback
+
+bcrypt.genSalt(10, (err, salt) => {
+  bcrypt.hash(password, salt, (err, hash) => {
+    console.log(hash);
+  });
+});
+
+var hashedPassword = '$2a$10$vnaYGmgN5V34OBYxGLKloe0ofrB9EnS8jGFJrB8w8YaAtCILveb1u';
+
+bcrypt.compare(password, hashedPassword, (err, res) => {
+  console.log(res);
+});

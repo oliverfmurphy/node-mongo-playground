@@ -102,3 +102,11 @@ npm install crypto-js --save
 JWT JSON Web Token
 npm install jsonwebtoken --save
 www.jwt.io
+
+bcrypt
+https://www.npmjs.com/package/bcryptjs
+npm install bcryptjs --save
+
+
+mongoose middleware
+https://mongoosejs.com/docs/middleware.html

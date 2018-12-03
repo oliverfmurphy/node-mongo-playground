@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
+
 // User
 // email - required, trim, string, minlength 1
 
@@ -106,6 +108,28 @@ UserSchema.statics.findByToken = function (token) {
 
 
 };
+
+// https://mongoosejs.com/docs/middleware.html
+// want to run code before a given event, i.e. before the save event
+// have to provide the next argument and have to call it inside your function
+UserSchema.pre('save', function(next) {
+  var user = this;
+
+  // check if the password has been modified
+  if (user.isModified()) {
+    // hash 7 salt the password
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        console.log(hash);
+        user.password = hash;
+        next();
+      });
+    });
+  } else {
+    // call next() and move on
+    next();
+  }
+})
 
 // create a new User model
 var User = mongoose.model('User', UserSchema);

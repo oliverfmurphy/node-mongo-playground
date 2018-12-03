@@ -8,6 +8,7 @@ const {ObjectID} = require('mongodb');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 console.log('server.js env [', process.env.NODE_ENV, '], PORT [', process.env.PORT, '], MONGODB_URI [', process.env.MONGODB_URI, '].');
 
@@ -254,6 +255,13 @@ app.post('/users', (req, res) => {
     console.log(e);
     res.status(400).send(e);
   });
+});
+
+
+// private route, authenticate is the function above
+app.get('/users/me', authenticate, (req, res) => {
+  // send back the user which is available on req.user
+  res.send(req.user);
 });
 
 app.listen(port, () => {

@@ -56,6 +56,7 @@ UserSchema.methods.toJSON = function () {
 // not using an arrow function as arrow functions do not bind a "this" keyword. We need a "this" keyword for our methods
 // because the "this" keyword stores the individual document
 UserSchema.methods.generateAuthToken = function () {
+  // instance methods get called with the individual documents, so lower case user
   var user = this;
   // access token
   var access = 'auth';
@@ -72,6 +73,38 @@ UserSchema.methods.generateAuthToken = function () {
   return user.save().then(() => {
     return token;
   });
+};
+
+// .statics means everything you add on to it turns into a model method instead of an instance method
+UserSchema.statics.findByToken = function (token) {
+  // model methods get called with the model as the this binding
+  var User = this;
+
+  var decoded; // create undefined variable because jwt.verify() throws an error if anything goes wrong, so we want to be able to catch the
+  // error and do something with it
+
+  try {
+    decoded = jwt.verify(token, 'abc123');
+  } catch (e) {
+    // return a promise that is always going to  reject
+    // instead of creating a promise and rejecting it straight away we can call return Promise.reject();
+    /*
+    return new Promise((resolve, reject) => {
+      reject();
+    });
+    */
+    return Promise.reject(); // can pass in text as well if we want which could be used in the (e)
+  }
+
+  // we are going to add a return statement so we can add some chaining
+  return User.findOne({
+    // find a user where the _id and the token property match
+    '_id': decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  })
+
+
 };
 
 // create a new User model

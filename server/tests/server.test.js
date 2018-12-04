@@ -1,9 +1,9 @@
 const expect = require('expect');
 const request = require('supertest');
-const{ObjectID} = require('mongodb');
+const {ObjectID} = require('mongodb');
 
-const{app} = require('./../server');
-const{Todo} = require('./../models/todo');
+const {app} = require('./../server');
+const {Todo} = require('./../models/todo');
 
 console.log('server.test.js env [', process.env.NODE_ENV, '], PORT [', process.env.PORT, '], MONGODB_URI [', process.env.MONGODB_URI || '].');
 
@@ -20,6 +20,7 @@ const todos = [{
 
 // add a testing lifecycle method
 beforeEach((done) => {
+  console.log('Oli temp 1');
   // make sure the db is empty by removing all the records
   // pass in an empty object to Todo.remove which will wipe all of our todos
   /*
@@ -28,8 +29,9 @@ beforeEach((done) => {
 
   // empty the array then insert todos from the array above
   Todo.remove({}).then(() => {
-    return Todo.insertMany(todos)
-  }).then(() => done());
+    console.log('Oli temp 2');
+    return Todo.insertMany(todos);
+   }).then(() => done());
 });
 
 // create describe block and add test cases
@@ -39,7 +41,7 @@ describe('POST /todos', () => {
   // have to specify done otherwise the test will not work as expected
   it('should create a new todo', (done) => {
     var text = 'Test todo text';
-
+console.log('Oli temp 3');
     // make GET request through supertest
     request(app)
       .post('/todos') // set up a post request
@@ -57,6 +59,7 @@ describe('POST /todos', () => {
         if (err) {
           // if error exists pass it into done. this will wrap up the test printing the error to the screen
           // returning it stops the function execution
+          console.log('Oli temp 4');
           return done(err);
         }
 
@@ -66,6 +69,7 @@ describe('POST /todos', () => {
         Todo.find({text}).then((todos) => {
           expect(todos.length).toBe(1); // assume to be a length of 1
           expect(todos[0].text).toBe(text); // assume the first and only record to be equal to text
+          console.log('Oli temp 5');
           done();
         }).catch((e) => done(e)); // catch any errors that may occur inside of our callback
       });
@@ -170,14 +174,14 @@ describe('POST /todos', () => {
     request(app)
       .delete(`/todos/${hexId}`)
       .expect(404)
-      .end(done)
+      .end(done);
     });
 
     it('should return 404 if object id is invalid', (done) => {
       request(app)
         .delete(`/todos/123abc`)
         .expect(404)
-        .end(done)
+        .end(done);
     });
 
   });
@@ -193,7 +197,6 @@ describe('POST /todos', () => {
       request(app)
         // convert the object ID to a string using toHexString()
         .patch(`/todos/${hexId}`)
-        .expect(200)
         .send({text,
               completed: true}) // send data with the request, object gets converted to JSON by supertest
         .expect(200)
@@ -202,7 +205,7 @@ describe('POST /todos', () => {
           expect(res.body.todo.completed).toBe(true);
           expect(typeof res.body.todo.completedAt).toBe('number');
         })
-        .end(done)
+        .end(done);
     });
 
     it ('should clear completedAt when todo is not completed', (done) => {
@@ -219,7 +222,6 @@ describe('POST /todos', () => {
       request(app)
         // convert the object ID to a string using toHexString()
         .patch(`/todos/${hexId}`)
-        .expect(200)
         .send({text,
               completed: false}) // send data with the request, object gets converted to JSON by supertest
         .expect(200)

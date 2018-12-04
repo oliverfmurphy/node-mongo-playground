@@ -4,11 +4,15 @@ var env = process.env.NODE_ENV || 'development';
 
 if (env === 'development') {
   process.env.PORT = 3000;
-  process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp';
+  // process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp';
+  // use 127.0.0.1 instead of localhost to prevent  Error: Timeout of 2000ms exceeded. For async tests and hooks, ensure "done()" is called; if returning a Promise, ensure it resolves.
+  process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/TodoApp';
   process.env.NODE_ENV = 'development';
 } else if (env === 'test') {
   process.env.PORT = 3000;
-  process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest'; // Test database
+  // process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest'; // Test database
+  // use 127.0.0.1 instead of localhost to prevent  Error: Timeout of 2000ms exceeded. For async tests and hooks, ensure "done()" is called; if returning a Promise, ensure it resolves.
+  process.env.MONGODB_URI = 'mongodb://127.0.0.1:27017/TodoAppTest'; // Test database
   process.env.NODE_ENV = 'development';
 }
 

@@ -4,35 +4,22 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {User} = require('./../models/user');
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
 console.log('server.test.js env [', process.env.NODE_ENV, '], PORT [', process.env.PORT, '], MONGODB_URI [', process.env.MONGODB_URI || '].');
 
-// make up an array of dummy todos
-const todos = [{
-    _id: new ObjectID(),
-    text: 'First test todo'
-  }, {
-    _id: new ObjectID(),
-    text: 'Second test todo',
-    completed: true,
-    completedAt: 333
-}];
+// if you see TypeError: expect(...).toExist is not a function
+// it because the expect assertion library has changed ownership. It was handed over to the Jest team, who in their infinite wisdom,
+// created a new API. You must now use 'toBeTruthy()' instead of 'toExist()'.
+
+// if you see an error like TypeError: expect(...).toNotBe is not a function
+// you need to use expect(X).not.toBe(Y); instead
+
 
 // add a testing lifecycle method
-beforeEach((done) => {
-  console.log('Oli temp 1');
-  // make sure the db is empty by removing all the records
-  // pass in an empty object to Todo.remove which will wipe all of our todos
-  /*
-  Todo.remove({}).then(() => done());
-  */
-
-  // empty the array then insert todos from the array above
-  Todo.remove({}).then(() => {
-    console.log('Oli temp 2');
-    return Todo.insertMany(todos);
-   }).then(() => done());
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 // create describe block and add test cases
 describe('POST /todos', () => {
@@ -41,7 +28,7 @@ describe('POST /todos', () => {
   // have to specify done otherwise the test will not work as expected
   it('should create a new todo', (done) => {
     var text = 'Test todo text';
-console.log('Oli temp 3');
+
     // make GET request through supertest
     request(app)
       .post('/todos') // set up a post request
@@ -59,7 +46,6 @@ console.log('Oli temp 3');
         if (err) {
           // if error exists pass it into done. this will wrap up the test printing the error to the screen
           // returning it stops the function execution
-          console.log('Oli temp 4');
           return done(err);
         }
 
@@ -69,7 +55,6 @@ console.log('Oli temp 3');
         Todo.find({text}).then((todos) => {
           expect(todos.length).toBe(1); // assume to be a length of 1
           expect(todos[0].text).toBe(text); // assume the first and only record to be equal to text
-          console.log('Oli temp 5');
           done();
         }).catch((e) => done(e)); // catch any errors that may occur inside of our callback
       });
@@ -231,6 +216,96 @@ console.log('Oli temp 3');
           expect(res.body.todo.completedAt).toBeFalsy();
         })
         .end(done)
+    });
+
+  });
+
+  describe('GET /users/me', () => {
+    it('should return a user if authenticated', (done) => {
+      request(app)
+        .get('/users/me')
+        // set a header in super test
+        .set('x-auth', users[0].tokens[0].token)
+        .expect(200)
+        // custom expect function
+        .expect((res) => {
+          expect(res.body._id).toBe(users[0]._id.toHexString());
+          expect(res.body.email).toBe(users[0].email);
+        })
+        .end(done)
+    });
+
+    it('should return 401 if not authenticated', (done) => {
+      // dont provide an x-auth token and expect a 401
+      // the body should be equal to an empty object, need to use toEqual() and not toBe()
+      request(app)
+        .get('/users/me')
+        .expect(401)
+        // custom expect function
+        .expect((res) => {
+          expect(res.body).toEqual({});
+        })
+        .end(done)
+    });
+
+  });
+
+  describe('POST /users', () => {
+    it('should create a user', (done) => {
+      var email = 'example@example.com'
+      var password = '123xyz!';
+
+      request(app)
+        .post('/users')
+        .send({email, password})
+        .expect(200)
+        .expect((res) => {
+          // because x-auths has a hyphen we cannot use .notation as it would be invalid, have to use brackets instead
+          expect(res.headers['x-auth']).toBeTruthy();
+          expect(res.body._id).toBeTruthy();
+          expect(res.body.email).toBe(email);
+        })
+        .end((err) => {
+          if (err) {
+            return done(err);
+          }
+
+          // see if we can find a user
+          User.findOne({email}).then((user) => {
+            expect(user).toBeTruthy();
+            // expect the password to be different as it should have been hashed
+            expect(user.password).not.toBe(password);
+            done();
+          }).catch((e) => {
+            done(e);
+          });
+
+        });
+    });
+
+    it('should return validation errors if request invalid', (done) => {
+      // expect a 400 back if invalid email and invalid password
+      request(app)
+        .post('/users')
+        .send({
+          email: 'and',
+          password: '123'
+        })
+        .expect(400)
+        .end(done)
+    });
+
+    it('should not create user if email in use', (done) => {
+      // expect a 400 response
+      request(app)
+        .post('/users')
+        .send({
+          email: users[0].email,
+          password: 'password123!'
+        })
+        .expect(400)
+        .end(done)
+
     });
 
   });

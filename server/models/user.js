@@ -77,6 +77,21 @@ UserSchema.methods.generateAuthToken = function () {
   });
 };
 
+// instance method
+UserSchema.methods.removeToken = function (token) {
+  // $pull lets you remove items from an array that match certain criteria
+  var user = this;
+
+  return user.update({
+    // pull any token in the array that equals token. not just the token property, the entire object
+    $pull: {
+      tokens: {
+        token: token
+      }
+    }
+  });
+};
+
 // .statics means everything you add on to it turns into a model method instead of an instance method
 UserSchema.statics.findByToken = function (token) {
   // model methods get called with the model as the this binding

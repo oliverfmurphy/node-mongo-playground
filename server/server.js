@@ -288,6 +288,18 @@ app.post('/users/login', (req, res) => {
   });
 });
 
+// call to logout a user, will be a DELETE route as we are trying to delete something
+// make route private which means you will have to be authenticated to ever run the code
+app.delete('/users/me/token', authenticate, (req, res) => {
+  // call an instance method, req.user since they are authenticated
+  req.user.removeToken(req.token).then(() => {
+    res.status(200).send();
+  },() => {
+    // if there are any errors send back a 400
+    res.status(400).send();
+  })
+});
+
 app.listen(port, () => {
   console.log(`Started on port ${port}`);
 });

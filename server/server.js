@@ -264,7 +264,7 @@ app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
 });
 
-// POST /users/login(email, password)
+
 // cant use middleware as we dont have a token, we are trying to get one when we login
 app.post('/users/login', (req, res) => {
   console.log(req.body);

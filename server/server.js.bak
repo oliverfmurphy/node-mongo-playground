@@ -153,14 +153,14 @@ app.get('/todos/:id', (req, res) => {
     // exception if the object Id is invalid
     // 400 - request not valid & send empty body back
     console.log(e);
-    return res.status(400).send();
+    return res.status(400).send(e);
   });
 
 });
 
 // create a delete route
 app.delete('/todos/:id', (req, res) => {
-  var id = req.params.id;
+  var id = req.params.id
 
   // validate the Id using isValid
   if (!ObjectID.isValid(id)) {
@@ -184,7 +184,7 @@ app.delete('/todos/:id', (req, res) => {
     // exception if the object Id is invalid
     // 400 - request not valid & send empty body back
     console.log(e);
-    res.status(400).send();
+    return res.status(400).send(e);
   });
 });
 
@@ -265,7 +265,7 @@ app.get('/users/me', authenticate, (req, res) => {
 });
 
 // POST /users/login(email, password)
-// cant use middleware as we dont have a token, we are trying to get one when we login
+// cant use middleware as we dont have a token, we are trying to get one
 app.post('/users/login', (req, res) => {
   console.log(req.body);
 
@@ -276,11 +276,7 @@ app.post('/users/login', (req, res) => {
   // if there is no user the catch case is going to get fired
   User.findByCredentials(body.email, body.password).then((user) => {
     console.log('user found');
-    // generate a new token and send it back
-    return user.generateAuthToken().then((token) => {
-      console.log('Sending back user..');
-      res.header('x-auth', token).send(user);
-    });
+    res.send(user);
   }).catch((e) => {
     console.log('user not found!!');
     console.log('email', body.email, 'password', body.password)

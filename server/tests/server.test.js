@@ -311,7 +311,7 @@ describe('POST /users', () => {
   });
 });
 
-describe('POST /users//login', () => {
+describe('POST /users/login', () => {
   it('should login user and return auth token', (done) => {
     request(app)
       .post('/users/login')
@@ -360,6 +360,31 @@ describe('POST /users//login', () => {
         }
 
         User.findById(users[1]._id).then((user) => {
+          // assert that the length of the array is 0
+          expect(user.tokens.length).toBe(0);
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+});
+
+describe('DELETE /users/me/token', () => {
+  it('should remove auth token on logout', (done) => {
+    // make a DELETE request
+    // set x-auth equal to token
+    // 200
+    // Find user and verify tokens array has length of zero
+    request(app)
+      .delete('/users/me/token')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      // call end and set up custom async function so we can query the database
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        User.findById(users[0]._id).then((user) => {
           // assert that the length of the array is 0
           expect(user.tokens.length).toBe(0);
           done();

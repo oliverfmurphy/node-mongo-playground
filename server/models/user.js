@@ -63,7 +63,7 @@ UserSchema.methods.generateAuthToken = function () {
   // access token
   var access = 'auth';
   // use ES6 to get the variable access i.e. access: access
-  var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
+  var token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
 
   // user.tokens is empty by default. .push() => push on a new object with these properties - some problems across mongodb versions
   // so we use .concat instead which does the same thing
@@ -101,7 +101,7 @@ UserSchema.statics.findByToken = function (token) {
   // error and do something with it
 
   try {
-    decoded = jwt.verify(token, 'abc123');
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (e) {
     // return a promise that is always going to  reject
     // instead of creating a promise and rejecting it straight away we can call return Promise.reject();

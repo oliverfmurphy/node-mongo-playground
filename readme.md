@@ -110,3 +110,18 @@ npm install bcryptjs --save
 
 mongoose middleware
 https://mongoosejs.com/docs/middleware.html
+
+
+// heroku commands to set environment variables in production
+heroku config
+
+// heroku config:set takes a key value pair
+heroku config:set NAME=Oliver
+
+// heroku config:get lets us get environment variable values
+heroku config:get NAME
+
+// heroku config:unset removes an environment variable
+heroku config:unset NAME
+
+// set our JWTSIGN environment variable

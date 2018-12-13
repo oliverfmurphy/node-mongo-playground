@@ -95,11 +95,12 @@ const port = process.env.PORT; // set above
 
 app.use(bodyParser.json());
 
-// post
-app.post('/todos', (req, res) => {
+// if we have authenticate it means the route is private and uses the authenticate middleware
+app.post('/todos', authenticate, (req, res) => {
   console.log(req.body);
   var todo = new Todo({
-    text: req.body.text
+    text: req.body.text,
+    _creator: req.user._id
   });
 
   todo.save().then((doc) => {
@@ -112,8 +113,11 @@ app.post('/todos', (req, res) => {
 });
 
 // get all todos
-app.get('/todos', (req, res) => {
-  Todo.find().then((todos) => {
+app.get('/todos', authenticate, (req, res) => {
+  Todo.find({
+    // get todos where the _id is the same as the user that is authenticated
+    _creator: req.user._id
+  }).then((todos) => {
     // {todos} is the todos array
     res.send({todos});
   }, (e) => {
@@ -123,7 +127,7 @@ app.get('/todos', (req, res) => {
 
 // GET /todos/12345 etc.
 // we need to get a URL parameter, :id creates an id variable on the request object so we can access the variable
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
   // send back the request params object
   // res.send(req.params)
 
@@ -136,8 +140,11 @@ app.get('/todos/:id', (req, res) => {
   };
 
   // findById
-  // gets a single document by Id, returns null if not found
-  Todo.findById(id).then((todo) => {
+  // gets a single document by Id & creator property, returns null if not found
+  Todo.findOne({
+    id: id,
+    _creator: req.user._id
+  }).then((todo) => {
     if (!todo) {
      // if no todo - the call did succeed but there was no related call in the collection - send back an empty body
       return res.status(404).send();
@@ -159,7 +166,7 @@ app.get('/todos/:id', (req, res) => {
 });
 
 // create a delete route
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
   var id = req.params.id;
 
   // validate the Id using isValid
@@ -171,7 +178,10 @@ app.delete('/todos/:id', (req, res) => {
 
   // remove document by Id
   // the callback gets the document back
-  Todo.findByIdAndRemove(id).then((todo) => {
+  Todo.findOneAndRemove({
+    _id: id,
+    _creator: req.user._id
+  }).then((todo) => {
     if (!todo) {
      // if no todo - the call did succeed but there was no related call in the collection - send back an empty body
       return res.status(404).send();
@@ -189,7 +199,7 @@ app.delete('/todos/:id', (req, res) => {
 });
 
 // PATCH method for updates
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
   var id = req.params.id;
   // pick takes an array of properties that you want to pull off if they exist
   // if the text property exists then pull that off of request body adding it to body
@@ -210,7 +220,7 @@ app.patch('/todos/:id', (req, res) => {
     body.completedAt = null;
   }
 
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+  Todo.findOneAndUpdate({_id: id, _creator: req.user._id}, {$set: body}, {new: true}).then((todo) => {
     if (!todo) {
       return res.status(404).send();
     };

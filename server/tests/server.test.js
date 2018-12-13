@@ -35,6 +35,7 @@ describe('POST /todos', () => {
     // make GET request through supertest
     request(app)
       .post('/todos') // set up a post request
+      .set('x-auth', users[0].tokens[0].token)
       .send({text}) // send data with the request, object gets converted to JSON by supertest
       // now make assertions about the request
       .expect(200)
@@ -67,6 +68,7 @@ describe('POST /todos', () => {
     // make GET request through supertest
     request(app)
       .post('/todos') // set up a post request
+      .set('x-auth', users[0].tokens[0].token)
       .send({}) // send empty object with the request
       // now make assertions about the request
       .expect(400)
@@ -93,10 +95,11 @@ describe('GET /todos', () => {
   it('should get all todos', (done) => {
     request(app)
       .get('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       // make assertions about what comes back
       .expect(200)
       .expect((res) => {
-        expect(res.body.todos.length).toBe(2);
+        expect(res.body.todos.length).toBe(1);
       })
       .end(done);
   });
@@ -108,10 +111,22 @@ describe('GET /todos/:id', () => {
     request(app)
       // convert the object ID to a string using toHexString()
       .get(`/todos/${todos[0]._id.toHexString()}`)
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .expect((res) => {
         expect(res.body.todo.text).toBe(todos[0].text);
       })
+      .end(done);
+  });
+
+  // check if logged in as user 1 you cant access a todo for user 2
+  // try and access the second todo item as the first todo user
+  it('should not return todo doc created by other user', (done) => {
+    request(app)
+      // convert the object ID to a string using toHexString()
+      .get(`/todos/${todos[1]._id.toHexString()}`)
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(404)
       .end(done);
   });
 
@@ -120,6 +135,7 @@ describe('GET /todos/:id', () => {
     var hexId = new ObjectID().toHexString();
     request(app)
       .get(`/todos/${hexId}`)
+      .set('x-auth', users[0].tokens[0].token)
       .expect(404)
       .end(done);
   });
@@ -127,6 +143,7 @@ describe('GET /todos/:id', () => {
   it('should return 404 for non object IDs', (done) => {
     request(app)
       .get(`/todos/123abc`)
+      .set('x-auth', users[0].tokens[0].token)
       .expect(404)
       .end(done);
   });
@@ -139,6 +156,7 @@ describe('DELETE /todos/:id', () => {
 
     request(app)
       .delete(`/todos/${hexId}`)
+      .set('x-auth', users[1].tokens[0].token)
       .expect(200)
       // custome expect call
       .expect((res) => {
@@ -157,11 +175,37 @@ describe('DELETE /todos/:id', () => {
       });
   });
 
+  it('should not remove a todo created by another user', (done) => {
+    // get the Id of the second object in the array
+    var hexId = todos[0]._id.toHexString();
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .set('x-auth', users[1].tokens[0].token)
+      .expect(404)
+      // custome expect call
+      .expect((res) => {
+        expect(res.body.todo._id).toBe(hexId);
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+
+        // query database using findById to Exist as we should not be able to delete a todo for another user
+        Todo.findById(hexId).then((todo) => {
+          expect(todo).toBeTruthy();
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+
   it('should return 404 if todo not found', (done) => {
   // convert the object ID to a string using toHexString()
   var hexId = new ObjectID().toHexString();
   request(app)
     .delete(`/todos/${hexId}`)
+    .set('x-auth', users[1].tokens[0].token)
     .expect(404)
     .end(done);
   });
@@ -169,6 +213,7 @@ describe('DELETE /todos/:id', () => {
   it('should return 404 if object id is invalid', (done) => {
     request(app)
       .delete(`/todos/123abc`)
+      .set('x-auth', users[1].tokens[0].token)
       .expect(404)
       .end(done);
   });
@@ -185,7 +230,9 @@ describe('PATCH /todos/:id', () => {
     request(app)
       // convert the object ID to a string using toHexString()
       .patch(`/todos/${hexId}`)
-      .send({text,
+      .set('x-auth', users[0].tokens[0].token)
+      .send({
+        text,
         completed: true}) // send data with the request, object gets converted to JSON by supertest
       .expect(200)
       .expect((res) => {
@@ -193,6 +240,23 @@ describe('PATCH /todos/:id', () => {
         expect(res.body.todo.completed).toBe(true);
         expect(typeof res.body.todo.completedAt).toBe('number');
       })
+      .end(done);
+  });
+
+  it ('should not update the todo created by other user', (done) => {
+    // grab id of first item
+    var hexId = todos[0]._id.toHexString();
+    var text = 'Test PATCH #1';
+
+    // make GET request through supertest
+    request(app)
+      // convert the object ID to a string using toHexString()
+      .patch(`/todos/${hexId}`)
+      .set('x-auth', users[1].tokens[0].token)
+      .send({
+        text,
+        completed: true}) // send data with the request, object gets converted to JSON by supertest
+      .expect(404)
       .end(done);
   });
 
@@ -210,6 +274,7 @@ describe('PATCH /todos/:id', () => {
     request(app)
       // convert the object ID to a string using toHexString()
       .patch(`/todos/${hexId}`)
+      .set('x-auth', users[1].tokens[0].token)
       .send({text,
         completed: false}) // send data with the request, object gets converted to JSON by supertest
       .expect(200)
@@ -332,7 +397,7 @@ describe('POST /users/login', () => {
 
         User.findById(users[1]._id).then((user) => {
           // assert that the x-auth token that came back was added into the tokens array
-          expect(user.tokens[0]).toMatchObject({
+          expect(user.tokens[1]).toMatchObject({
             access: 'auth',
             token: res.headers['x-auth']
           });
@@ -360,8 +425,8 @@ describe('POST /users/login', () => {
         }
 
         User.findById(users[1]._id).then((user) => {
-          // assert that the length of the array is 0
-          expect(user.tokens.length).toBe(0);
+          // assert that the length of the array is 1, we logged in invalidly so the count should not have changed
+          expect(user.tokens.length).toBe(1);
           done();
         }).catch((e) => done(e));
       });

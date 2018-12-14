@@ -125,3 +125,20 @@ heroku config:get NAME
 heroku config:unset NAME
 
 // set our JWTSIGN environment variable
+heroku config:set JWT_SECRET=lajfojifd897jilkjadlf027okajop02eradlf
+
+heroku config:get MONGODB_URI
+ »   Warning: heroku update available from 7.15.1 to 7.18.9
+mongodb://heroku_w9jqdnrm:teuoi8ino0ombnebo4hjb40ol6@ds119304.mlab.com:19304/heroku_w9jqdnrm
+where
+mongodb is the protocol
+://
+heroku_w9jqdnrm is the username
+:
+teuoi8ino0ombnebo4hjb40ol6 is the password
+@
+ds119304.mlab.com is the address
+:
+19304 is the port
+/
+heroku_w9jqdnrm the database

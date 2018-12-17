@@ -48,6 +48,11 @@ npm install expect mocha nodemon supertest --save-dev
 npm run test-watch
 
 
+// Expect
+https://jestjs.io/docs/en/expect.html
+https://github.com/mjackson/expect
+https://www.npmjs.com/package/expect
+
 Heroku
 start script in package.json tells heroku how to start the application
 set up an engines property to tell Heroku what version of node to use
